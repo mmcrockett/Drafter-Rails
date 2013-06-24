@@ -1,14 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Draft</title>
-  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <% links = ["drafts", "seasons", "teams", "players"] %>
+  <% name = params[:controller] %>
+  <title>Draft - <%= name.capitalize %></title>
+  <%= stylesheet_link_tag "application", :media => "all" %>
+  <%= stylesheet_link_tag "http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css", :media => "all" %>
+
+  <% external_javascript.each do |jsinclude| %>
+    <%= javascript_include_tag(jsinclude) %>
+  <% end %>
+
   <%= javascript_include_tag "application" %>
+
   <%= csrf_meta_tags %>
 </head>
 <body>
+<div id="menu" class="ui-corner-all">
+  <% links.each do |link| %>
+    <% if (name == link) %>
+      <% selected = "ui-state-focus" %>
+    <% else %>
+      <% selected = "" %>
+    <% end %>
+  <li class="<%= selected %>"><a href="<%= link %>"><%= link.capitalize %></a></li>
+  <% end %>
+</ul>
+</div>
+<div class="notice"><div id="error-div" class="ui-corner-all"></div></div>
+<hr>
 
 <%= yield %>
+
+<%= javascript_tag("jQuery.ready(jQuery('#menu').menubar())") %>
 
 </body>
 </html>

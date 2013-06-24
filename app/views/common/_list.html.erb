@@ -1,0 +1,20 @@
+<div id="radio-div" class="radio">
+  <input type="radio" id="single-radio" name="radio" /><label for="single-radio">Single</label>
+  <input type="radio" id="bulk-radio" name="radio" /><label for="bulk-radio">Bulk</label>
+</div>
+<div class="single-import" id="single-import-div">
+  <input class="ui-widget ui-state-default ui-corner-all ui-button-text-only" id="single-import-field" name="name" size="100" type="text">
+  <button id="single-add-button">Add</button>
+</div>
+<div class="bulk-import" id="bulk-import-div">
+  <textarea style="height:200px;width:800px;" id="bulk-import-field">
+  </textarea>
+  <br>
+  <button id="bulk-add-button">Parse CSV</button>
+</div>
+<hr>
+<div id="data-div">
+</div>
+
+<%= javascript_tag("jQuery.ready(jQuery('button').button())") %>
+<%= javascript_tag("jQuery.ready(jQuery('#radio-div').buttonset())") %>

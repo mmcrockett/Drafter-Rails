@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  first_name: MyString
+  last_name: MyString
+  goals: 
+  assists: 
+  pim: 
+  games: 
+  pick: 
+  position: MyString
+  league: MyString
+  notes: MyString
+  season: 
+  team: 
+
+two:
+  first_name: MyString
+  last_name: MyString
+  goals: 
+  assists: 
+  pim: 
+  games: 
+  pick: 
+  position: MyString
+  league: MyString
+  notes: MyString
+  season: 
+  team: 

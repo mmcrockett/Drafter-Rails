@@ -1,0 +1,4 @@
+<%= render :partial => "common/season_selector" %>
+<%= render :partial => "common/list" %>
+
+<%= javascript_tag("jQuery.ready(new PlayerView(#{@players.to_json}))") %>

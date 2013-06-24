@@ -1,4 +1,13 @@
 Draft::Application.routes.draw do
+  resources :players
+
+
+  resources :teams
+
+
+  resources :seasons
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
