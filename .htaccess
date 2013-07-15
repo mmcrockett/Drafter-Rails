@@ -1,0 +1,6 @@
+AuthName "Hockey Draft Protection"
+AuthType Basic
+AuthUserFile /home/hockeydraft/.hockeydraft_htpasswd
+Require valid-user
+ExpiresActive On
+ExpiresDefault "access plus 2 days"
