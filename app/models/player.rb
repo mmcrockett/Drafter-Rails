@@ -8,6 +8,7 @@ class Player < ActiveRecord::Base
 
   before_save  :capitalize_first_name
   before_save  :capitalize_last_name
+  before_save  :default_notes
 
   def capitalize_first_name
     self.first_name.strip!
@@ -19,5 +20,11 @@ class Player < ActiveRecord::Base
     self.last_name.strip!
     self.last_name.downcase!
     self.last_name = self.last_name.titlecase
+  end
+
+  def default_notes
+    if (nil == self.notes)
+      self.notes = []
+    end
   end
 end

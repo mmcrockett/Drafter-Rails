@@ -3,7 +3,6 @@ var Season = Backbone.Model.extend({
   ,player_notes: function(){return this.get("player_notes") || [];}
   ,complete: function(){return this.get("complete") || 1;}
   ,url: "/seasons.json"
-  ,gheaders: function(){return ["Season"]}
   ,gdata: function(){
     return [this.name()]
   }
@@ -14,6 +13,7 @@ var Season = Backbone.Model.extend({
 
 var SeasonCollection = Backbone.Collection.extend({
   model: Season
+  ,gheaders: function(){return ["Season"]}
   ,url: "/seasons.json"
 });
 

@@ -41,9 +41,13 @@ ActiveRecord::Schema.define(:version => 20130624195149) do
   end
 
   create_table "teams", :force => true do |t|
-    t.string   "name",       :null => false
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.string   "name",           :null => false
+    t.integer  "draft_position"
+    t.integer  "season_id",      :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
+
+  add_index "teams", ["season_id"], :name => "index_teams_on_season_id"
 
 end

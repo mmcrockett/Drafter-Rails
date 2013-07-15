@@ -1,0 +1,8 @@
+<%= render :partial => "common/season_selector" %>
+
+<div id="draft-div">
+</div>
+<div style="clear:both;"></div>
+<%= render :partial => "common/list" %>
+
+<%= javascript_tag("jQuery.ready(new DraftView(#{@players.to_json}, #{@teams.to_json}))") %>

@@ -14,10 +14,11 @@ class SeasonsController < ApplicationController
   # GET /seasons/1.json
   def show
     @season = Season.find(params[:id])
+    @players = Player.where(season_id: @season)
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @season }
+      format.json { render json: @players}
     end
   end
 

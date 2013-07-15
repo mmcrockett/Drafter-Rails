@@ -41,6 +41,7 @@ class TeamsController < ApplicationController
   # POST /teams.json
   def create
     @team = Team.new(params[:team])
+    @team.season = Season.find(params[:season_id])
 
     respond_to do |format|
       if @team.save

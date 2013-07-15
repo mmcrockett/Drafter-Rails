@@ -10,7 +10,7 @@ class CreatePlayers < ActiveRecord::Migration
       t.integer :pick
       t.string :position
       t.string :league
-      t.string :notes
+      t.string :notes, :null => false
       t.references :season, :null => false
       t.references :team
 

@@ -1,10 +1,24 @@
 var Player = Backbone.Model.extend({
-  first_name: function(){return this.get("first_name") || "";}
-  ,last_name: function(){return this.get("last_name") || "";}
-  ,league: function(){return this.get("league") || "";}
-  ,position: function(){return this.get("position") || "";}
-  ,notes: function(){return this.get("notes") || [];}
-  ,url: "/players.json"
+  first_name: function(){return this.get("first_name");}
+  ,last_name: function(){return this.get("last_name");}
+  ,name: function(){return this.first_name() + ' ' + this.last_name();}
+  ,league: function(){return this.get("league");}
+  ,goals: function(){return this.get("goals");}
+  ,assists: function(){return this.get("assists");}
+  ,pick: function(){return this.get("pick");}
+  ,team_id: function(){return this.get("team_id");}
+  ,season_id: function(){return this.get("season_id");}
+  ,position: function(){return this.get("position");}
+  ,is_goalie: function(){
+    return ("goalie" == this.get("position").toLowerCase());
+  }
+  ,notes: function(){return this.get("notes");}
+  ,defaults: function() {
+    return {notes: []};
+  }
+  ,gdata_detailed: function(view){
+    return [this.name(), view.season_name(this.season_id()), _.toString(this.pick()), _.toString(this.goals()), _.toString(this.assists()), this.position(), this.league(), view.team_name(this.team_id()), this.notesToString()];
+  }
   ,gdata: function(){
     return [this.last_name(), this.first_name(), this.league(), this.position(), this.notesToString()]
   }
@@ -15,19 +29,19 @@ var Player = Backbone.Model.extend({
 
 var PlayerCollection = Backbone.Collection.extend({
   model: Player
+  ,gheaders_detailed: function() {
+    return ["Name", "Season", "Pick", "G", "A", "Position", "League", "Team", "Notes"];
+  }
   ,gheaders: function(){
     return ["Last", "First", "League", "Position", "Notes"]
   }
-  ,url: "/players.json"
+  ,url: "/players"
 });
 
 var PlayerView = GenericView.extend({
   items: new PlayerCollection()
   ,display_items: function() {
     return new PlayerCollection(this.items.where({season_id:this.selected_season()}));
-  }
-  ,selected_season: function() {
-    return parseInt(this.season_select.selectBox().val());
   }
   ,add_player: function(player, notes) {
     player.season_id = this.selected_season();
@@ -62,8 +76,22 @@ var PlayerView = GenericView.extend({
   }
   ,initialize_child: function(options) {
     var view = this;
-    this.season_select = jQuery('#season-select');
-    this.season_select.selectBox().change(function(){view.render();});
+    this.season_select.selectBox().change(function(){view.clear_selection();view.render();});
+  }
+  ,add_note: function(value) {
+    value = value.trim();
+    if ((false == _.isEmpty(value)) && (true == _.isObject(this.selection))) {
+      var item = this.selection.item;
+
+      _.each(value.split(';'), function(note,i,obj) {
+        item.notes().push(note);
+      }, this);
+
+      this.wrapper.getDataTable().setValue(this.selection.gitem.row, _.indexOf(this.items.gheaders(), "Notes"), item.notesToString());
+      this.player_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
+
+      item.save();
+    }
   }
   ,parse_input: function(value) {
     var player = {};

@@ -1,3 +1,30 @@
 // Place all the styles related to the DraftPicks controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+#sortable li {
+  margin: 3px 3px 3px 0;
+  padding: 1px;
+  float: left;
+  height: 24em;
+  text-align: center;
+}
+
+div.captain {
+  font-style: italic;
+  background: #F5F5DC;
+}
+
+div.goalie {
+  background: #FFF380;
+}
+
+div.emptypick {
+  font-style: italic;
+  font-size: 0.7em;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}

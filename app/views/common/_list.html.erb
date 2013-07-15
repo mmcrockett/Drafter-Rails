@@ -12,8 +12,19 @@
   <br>
   <button id="bulk-add-button">Parse CSV</button>
 </div>
-<hr>
-<div id="data-div">
+<hr id="data-hr">
+<div id="data-div" style="float:left;padding-right:10px;">
+</div>
+<div id="player-data-div" style="display:none;float:right;">
+  <div id="player-data-gchart-div"></div>
+  <div class="single-note-import" id="single-note-import-div">
+    <input class="ui-widget ui-state-default ui-corner-all ui-button-text-only" id="single-note-import-field" name="name" size="50" type="text">
+    <button id="single-note-add-button">Add Note</button>
+  </div>
+</div>
+<div style="clear:both;"></div>
+<div id="dialog-confirm" title="Delete?" style="display:none;">
+	<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
 </div>
 
 <%= javascript_tag("jQuery.ready(jQuery('button').button())") %>

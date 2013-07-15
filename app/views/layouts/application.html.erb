@@ -16,7 +16,7 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-<div id="menu" class="ui-corner-all">
+<ul id="menu" class="ui-corner-all">
   <% links.each do |link| %>
     <% if (name == link) %>
       <% selected = "ui-state-focus" %>
@@ -26,7 +26,6 @@
   <li class="<%= selected %>"><a href="<%= link %>"><%= link.capitalize %></a></li>
   <% end %>
 </ul>
-</div>
 <div class="notice"><div id="error-div" class="ui-corner-all"></div></div>
 <hr>
 

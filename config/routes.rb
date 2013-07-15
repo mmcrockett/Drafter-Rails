@@ -7,7 +7,7 @@ Draft::Application.routes.draw do
 
   resources :seasons
 
-
+  resources :drafts
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

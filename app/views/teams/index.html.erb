@@ -1,23 +1,4 @@
-<h1>Listing teams</h1>
+<%= render :partial => "common/season_selector" %>
+<%= render :partial => "common/list" %>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @teams.each do |team| %>
-  <tr>
-    <td><%= team.name %></td>
-    <td><%= link_to 'Show', team %></td>
-    <td><%= link_to 'Edit', edit_team_path(team) %></td>
-    <td><%= link_to 'Destroy', team, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
-
-<%= link_to 'New Team', new_team_path %>
+<%= javascript_tag("jQuery.ready(new TeamView(#{@teams.to_json}))") %>

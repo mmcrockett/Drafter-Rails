@@ -8,6 +8,6 @@
 </div>
 <hr>
 <% if (true == seasons.empty?()) %>
-<%= javascript_tag("jQuery.ready(jQuery.error('You have no seasons. Please add season before adding players.'))") %>
+<%= javascript_tag("jQuery.ready(jQuery.error('no-seasons', 'You have no seasons. Please add a season before continuing.'))") %>
 <% end %>
 <%= javascript_tag("jQuery.ready(jQuery('#season-select').selectBox())") %>

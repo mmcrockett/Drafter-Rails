@@ -59,6 +59,12 @@ class PlayersController < ApplicationController
   def update
     @player = Player.find(params[:id])
 
+    if (nil != params[:team_id])
+      @player.team = Team.find(params[:team_id])
+    else
+      @player.team = nil
+    end
+
     respond_to do |format|
       if @player.update_attributes(params[:player])
         format.html { redirect_to @player, notice: 'Player was successfully updated.' }
