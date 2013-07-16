@@ -7,7 +7,7 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @drafts }
+      format.json { render :json => @drafts }
     end
   end
 
@@ -18,7 +18,7 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @draft }
+      format.json { render :json => @draft }
     end
   end
 
@@ -29,7 +29,7 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.json { render json: @draft }
+      format.json { render :json => @draft }
     end
   end
 
@@ -45,11 +45,11 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       if @draft.save
-        format.html { redirect_to @draft, notice: 'Draft was successfully created.' }
-        format.json { render json: @draft, status: :created, location: @draft }
+        format.html { redirect_to @draft, :notice => 'Draft was successfully created.' }
+        format.json { render :json => @draft, :status => :created, :location => @draft }
       else
-        format.html { render action: "new" }
-        format.json { render json: @draft.errors, status: :unprocessable_entity }
+        format.html { render :action => "new" }
+        format.json { render :json => @draft.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -61,11 +61,11 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       if @draft.update_attributes(params[:draft])
-        format.html { redirect_to @draft, notice: 'Draft was successfully updated.' }
+        format.html { redirect_to @draft, :notice => 'Draft was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @draft.errors, status: :unprocessable_entity }
+        format.html { render :action => "edit" }
+        format.json { render :json => @draft.errors, :status => :unprocessable_entity }
       end
     end
   end
