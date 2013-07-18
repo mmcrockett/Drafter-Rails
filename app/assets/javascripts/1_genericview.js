@@ -9,7 +9,8 @@ var GenericView = Backbone.View.extend({
     this.bulk_add_button   = jQuery('#bulk-add-button');
     this.bulk_add_input    = jQuery('#bulk-import-field');
     this.bulk_radio        = jQuery('#bulk-radio');
-    this.player_data_div   = jQuery('#player-data-div');
+    this.data_div          = jQuery('#data-div');
+    this.detail_data_div   = jQuery('#detail-data-div');
     this.season_select     = jQuery('#season-select');
     this.single_note_add_button = jQuery('#single-note-add-button');
     this.single_note_add_input  = jQuery('#single-note-import-field');
@@ -33,7 +34,7 @@ var GenericView = Backbone.View.extend({
 
     this.listenTo(this.items, 'sync', function() {
       view.render();
-      view.display_player_data();
+      view.display_detail_data();
     });
     this.listenTo(this.items, 'destroy', function() {
       view.clear_selection();
@@ -78,6 +79,9 @@ var GenericView = Backbone.View.extend({
   ,season_name: function(id) {
     return this.season_select.find('option[value=' + id + ']').text();
   }
+  ,season_pointhog: function(id) {
+    return this.season_select.find('option[value=' + id + ']').attr('pointhog');
+  }
   ,team_name: function(id) {
     var name = null;
 
@@ -120,6 +124,9 @@ var GenericView = Backbone.View.extend({
   ,display_items: function() {
     return this.items;
   }
+  ,detail_display_items: function() {
+    return this.items.where({last_name: this.selection.item.last_name(), first_name: this.selection.item.first_name()});
+  }
   ,set_selection: function() {
     if (true == _.isObject(this.selection)) {
       this.wrapper.getChart().setSelection([{row:this.selection.gitem.row}]);
@@ -129,7 +136,7 @@ var GenericView = Backbone.View.extend({
   }
   ,clear_selection: function() {
     this.selection = null;
-    this.player_data_div.hide();
+    this.detail_data_div.hide();
   }
   ,store_selection: function() {
     var gitems = this.wrapper.getChart().getSelection();
@@ -146,13 +153,16 @@ var GenericView = Backbone.View.extend({
     }*/
   }
   ,data_div_widths: function() {
-    var widths   = {pad: 10};
+    var widths   = {pad: 30};
     widths.left  = Math.floor((jQuery('body').innerWidth()-widths.pad)*0.4);
     widths.right = jQuery('body').innerWidth() - widths.pad - widths.left;
 
     return widths;
   }
   ,render: _.throttle(function() {
+    if (0 == this.data_div.length) {
+      return;
+    }
     var display_items = this.display_items();
     var data = new google.visualization.DataTable();
     var view = this;
@@ -188,15 +198,15 @@ var GenericView = Backbone.View.extend({
     }
 
     if (true == _.isUndefined(this.wrapper)) {
-      jQuery('#data-div').width(this.data_div_widths().left);
+      view.data_div.width(this.data_div_widths().left);
       this.wrapper = new google.visualization.ChartWrapper({
                       chartType: 'Table',
                       dataTable: data,
                       options: {showRowNumber: false, allowHtml: true, sortColumn: 0},
-                      containerId: 'data-div'
+                      containerId: view.data_div.attr('id')
                     });
       google.visualization.events.addListener(this.wrapper, 'ready', function() {
-        google.visualization.events.addListener(view.wrapper, 'select', function(){view.store_selection();view.display_player_data();});
+        google.visualization.events.addListener(view.wrapper, 'select', function(){view.store_selection();view.display_detail_data();});
       });
     } else {
       this.wrapper.setDataTable(data);
@@ -210,11 +220,11 @@ var GenericView = Backbone.View.extend({
       view.wrapper_ready();
     });
   }, 800)
-  ,display_player_data: _.throttle(function() {
+  ,display_detail_data: _.throttle(function() {
     if (true == _.isObject(this.selection)) {
       var data = new google.visualization.DataTable();
       var view = this;
-      var display_items = this.items.where({last_name: this.selection.item.last_name(), first_name: this.selection.item.first_name()});
+      var display_items = this.detail_display_items();
 
       jQuery.each(this.items.gheaders_detailed(), function(i,v){
         data.addColumn('string', v);
@@ -226,22 +236,22 @@ var GenericView = Backbone.View.extend({
         }, this);
       }
 
-      if (true == _.isUndefined(this.player_data_wrapper)) {
-        jQuery('#player-data-div').width(this.data_div_widths().right);
-        this.player_data_wrapper = new google.visualization.ChartWrapper({
+      if (true == _.isUndefined(this.detail_data_wrapper)) {
+        jQuery('#detail-data-div').width(this.data_div_widths().right);
+        this.detail_data_wrapper = new google.visualization.ChartWrapper({
                         chartType: 'Table',
                         dataTable: data,
                         options: {showRowNumber: false, allowHtml: true, sort: 'disable'},
-                        containerId: 'player-data-gchart-div'
+                        containerId: 'detail-data-gchart-div'
                       });
       } else {
-        this.player_data_wrapper.setDataTable(data);
+        this.detail_data_wrapper.setDataTable(data);
       }
 
-      this.player_data_wrapper.draw();
-      this.player_data_div.show();
+      this.detail_data_wrapper.draw();
+      this.detail_data_div.show();
     } /*else {
-      this.player_data_div.hide();
+      this.detail_data_div.hide();
     }*/
   }, 800)
 });

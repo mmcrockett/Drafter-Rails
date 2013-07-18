@@ -22,9 +22,42 @@ class Player < ActiveRecord::Base
     self.last_name = self.last_name.titlecase
   end
 
+  def name
+    return "#{self.first_name} #{self.last_name}"
+  end
+
   def default_notes
     if (nil == self.notes)
       self.notes = []
+    end
+  end
+
+  def goalie?
+    if (nil == self.position) 
+      return false
+    elsif ("GOALIE".downcase == self.position.downcase)
+      return true
+    else
+      return false
+    end
+  end
+
+  def update_stats(league, gp, g, a, pim)
+    gp  = gp.to_i
+    g   = g.to_i
+    a   = a.to_i
+    pim = pim.to_i
+
+    if ((false == self.goalie?) && ((nil == self.games) || (gp > self.games)))
+      self.games   = gp
+      self.assists = a
+      self.goals   = g
+      self.pim     = pim
+      self.notes.delete_if do |v|
+        (nil != v.match(/Pointhog .* Stats/))
+      end
+      self.notes   << "Pointhog #{league} Stats"
+      self.save()
     end
   end
 end

@@ -15,6 +15,7 @@ module ApplicationHelper
       #jsincludes << "http://www.appelsiini.net/download/jquery.jeditable.js"
       jsincludes << "http://underscorejs.org/underscore.js"
       jsincludes << "http://backbonejs.org/backbone.js"
+      jsincludes << "http://www.appelsiini.net/download/jquery.jeditable.mini.js"
       #jsincludes << "https://raw.github.com/PaulUithol/Backbone-relational/0.8.5/backbone-relational.js"
     end
 

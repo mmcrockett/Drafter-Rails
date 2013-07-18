@@ -2,7 +2,7 @@
 <div id="season-select-div">
   <select id="season-select">
     <% seasons.each do |season| %>
-    <option value="<%= season.id %>"><%= season.name %></option>
+    <option value="<%= season.id %>" pointhog="<%= season.pointhog %>"><%= season.name %></option>
     <% end %>
   </select>
 </div>

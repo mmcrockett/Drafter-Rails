@@ -3,8 +3,17 @@ var Player = Backbone.Model.extend({
   ,last_name: function(){return this.get("last_name");}
   ,name: function(){return this.first_name() + ' ' + this.last_name();}
   ,league: function(){return this.get("league");}
+  ,games: function(){return this.get("games");}
+  ,pim: function(){return this.get("pim");}
   ,goals: function(){return this.get("goals");}
   ,assists: function(){return this.get("assists");}
+  ,points: function(){
+    if ((true == _.isFinite(this.goals())) && (true == _.isFinite(this.assists()))) {
+      return this.goals() + this.assists();
+    } else {
+      return null;
+    }
+  }
   ,pick: function(){return this.get("pick");}
   ,team_id: function(){return this.get("team_id");}
   ,season_id: function(){return this.get("season_id");}
@@ -17,7 +26,7 @@ var Player = Backbone.Model.extend({
     return {notes: []};
   }
   ,gdata_detailed: function(view){
-    return [this.name(), view.season_name(this.season_id()), _.toString(this.pick()), _.toString(this.goals()), _.toString(this.assists()), this.position(), this.league(), view.team_name(this.team_id()), this.notesToString()];
+    return [this.name(), view.season_name(this.season_id()), _.toString(this.pick()), _.toString(this.games()), _.toString(this.points()), _.toString(this.goals()), _.toString(this.assists()), _.toString(this.pim()), this.position(), this.league(), view.team_name(this.team_id()), this.notesToString()];
   }
   ,gdata: function(){
     return [this.last_name(), this.first_name(), this.league(), this.position(), this.notesToString()]
@@ -30,7 +39,7 @@ var Player = Backbone.Model.extend({
 var PlayerCollection = Backbone.Collection.extend({
   model: Player
   ,gheaders_detailed: function() {
-    return ["Name", "Season", "Pick", "G", "A", "Position", "League", "Team", "Notes"];
+    return ["Name", "Season", "Pick", "GP", "P", "G", "A", "PIM", "Position", "League", "Team", "Notes"];
   }
   ,gheaders: function(){
     return ["Last", "First", "League", "Position", "Notes"]

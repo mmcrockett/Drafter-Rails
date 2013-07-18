@@ -1,15 +1,11 @@
 Draft::Application.routes.draw do
   root :to => 'drafts#index'
-
   resources :players
-
-
   resources :teams
-
-
   resources :seasons
-
   resources :drafts
+  match 'import' => 'import#index'
+  match 'import/:id' => 'import#import'
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
