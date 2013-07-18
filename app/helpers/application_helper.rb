@@ -9,6 +9,7 @@ module ApplicationHelper
       #jsincludes << "http://www.appelsiini.net/download/jquery.jeditable.mini.js"
       jsincludes << "http://underscorejs.org/underscore-min.js"
       jsincludes << "http://backbonejs.org/backbone-min.js"
+      jsincludes << "http://www.appelsiini.net/download/jquery.jeditable.mini.js"
     else
       jsincludes << "http://code.jquery.com/jquery-2.0.2.js"
       jsincludes << "http://code.jquery.com/ui/1.10.3/jquery-ui.js"
