@@ -18,7 +18,8 @@ var DraftView = GenericView.extend({
     this.season_select.selectBox().change(function(){view.render();view.render_draft();});
     this.draft_div = jQuery('#draft-div');
     this.teams = new TeamCollection();
-    this.teams.reset(options);
+    this.teams.reset(options.teams);
+    this.refresh_time = options.timestamp;
     jQuery('#single-import-div').hide();
     jQuery('#bulk-import-div').hide();
     jQuery('#radio-div').hide();
@@ -26,18 +27,12 @@ var DraftView = GenericView.extend({
     this.refresh();
   }
   ,refresh: function() {
+    return;
     var view = this;
-    var old_refresh_date = null;
 
-    if (false == _.isDate(view.last_refresh)) {
-      view.last_refresh = new Date();
-    }
-
-    old_refresh_date = view.last_refresh;
-    view.last_refresh = new Date();
-
-    jQuery.getJSON('/drafts/' + old_refresh_date.getTime() + '.json').done(function(data) {
-      _.forEach(data, function(updated_player, i, obj) {
+    jQuery.getJSON('/drafts/' + view.refresh_time.getTime() + '.json').done(function(data) {
+      view.refresh_time = new Date(data.server_time * 1000);
+      _.forEach(data.players, function(updated_player, i, obj) {
         var _player = view.items.findWhere({id:updated_player.id});
 
         if (true == _.isObject(_player)) {
@@ -113,28 +108,30 @@ var DraftView = GenericView.extend({
 
           elem.droppable({
             drop: function(e, ui){
-              if (true == _.isObject(view.selection)) {
-                var dropElem = jQuery(e.target);
-                var dragElem = jQuery(ui.draggable);
-                var _pick = parseInt(dropElem.attr('pick'));
-                var _tid  = parseInt(dropElem.attr('tid'));
-                var _pid  = parseInt(dragElem.attr('pid'));
-                var _player = null;
+              var dropElem = jQuery(e.target);
+              var dragElem = jQuery(ui.draggable);
+              var _pick = parseInt(dropElem.attr('pick'));
+              var _tid  = parseInt(dropElem.attr('tid'));
+              var _pid  = parseInt(dragElem.attr('pid'));
+              var _player = null;
             
-                if (false == _.isFinite(_pid)) {
+              if (false == _.isFinite(_pid)) {
+                if (true == _.isObject(view.selection)) {
                   _player = view.items.findWhere({id:view.selection.item.id});
                 } else {
-                  _player = view.items.findWhere({id:_pid});
-                  dragElem.removeAttr('pid');
+                  return false;
                 }
-
-                _player.set('team_id', _tid);
-                _player.set('pick', _pick);
-                _player.save();
-                dropElem.attr('pid', _player.id);
-                view.clear_selection();
-                view.paint_draft_board();
+              } else {
+                _player = view.items.findWhere({id:_pid});
+                dragElem.removeAttr('pid');
               }
+
+              _player.set('team_id', _tid);
+              _player.set('pick', _pick);
+              _player.save();
+              dropElem.attr('pid', _player.id);
+              view.clear_selection();
+              view.paint_draft_board();
             },
             hoverClass: "ui-state-highlight"
           });

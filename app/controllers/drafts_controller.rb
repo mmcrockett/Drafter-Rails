@@ -19,7 +19,7 @@ class DraftsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render :json => player_updates}
+      format.json { render :json => {:server_time => Time.now.to_i, :players => player_updates}}
     end
   end
 

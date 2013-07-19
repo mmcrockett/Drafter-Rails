@@ -5,4 +5,4 @@
 <div style="clear:both;"></div>
 <%= render :partial => "common/list" %>
 
-<%= javascript_tag("jQuery.ready(new DraftView(#{@players.to_json}, #{@teams.to_json}))") %>
+<%= javascript_tag("jQuery.ready(new DraftView(#{@players.to_json}, {teams:#{@teams.to_json}, timestamp:new Date(#{Time.now.to_i}*1000)}))") %>
