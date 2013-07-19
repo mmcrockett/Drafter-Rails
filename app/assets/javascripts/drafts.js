@@ -27,7 +27,6 @@ var DraftView = GenericView.extend({
     this.refresh();
   }
   ,refresh: function() {
-    return;
     var view = this;
 
     jQuery.getJSON('/drafts/' + view.refresh_time.getTime() + '.json').done(function(data) {
