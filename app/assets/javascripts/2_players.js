@@ -21,7 +21,7 @@ var Player = Backbone.Model.extend({
   ,is_goalie: function(){
     var position = this.get("position");
 
-    if (true == _.isObject(position)) {
+    if (true == _.isString(position)) {
       return ("goalie" == position.toLowerCase());
     } else {
       return false;
