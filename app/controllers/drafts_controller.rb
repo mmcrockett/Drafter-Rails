@@ -14,11 +14,12 @@ class DraftsController < ApplicationController
   # GET /drafts/1
   # GET /drafts/1.json
   def show
-    @draft = Draft.find(params[:id])
+    refresh_date = Time.at(params[:id].to_i/1000)
+    player_updates = Player.where("updated_at > ?", refresh_date)
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render :json => @draft }
+      format.json { render :json => player_updates}
     end
   end
 

@@ -23,6 +23,36 @@ var DraftView = GenericView.extend({
     jQuery('#bulk-import-div').hide();
     jQuery('#radio-div').hide();
     this.render_draft();
+    this.refresh();
+  }
+  ,refresh: function() {
+    var view = this;
+    var old_refresh_date = null;
+
+    if (false == _.isDate(view.last_refresh)) {
+      view.last_refresh = new Date();
+    }
+
+    old_refresh_date = view.last_refresh;
+    view.last_refresh = new Date();
+
+    jQuery.getJSON('/drafts/' + old_refresh_date.getTime() + '.json').done(function(data) {
+      _.forEach(data, function(updated_player, i, obj) {
+        var _player = view.items.findWhere({id:updated_player.id});
+
+        if (true == _.isObject(_player)) {
+          _player.set(updated_player);
+        } else {
+          view.items.unshift(new Player(updated_player));
+        }
+      });
+      view.render();
+      view.render_draft();
+    }).fail(function() {
+      view.last_refresh = old_refresh_date;
+    }).always(function() {
+      setTimeout(function() {view.refresh();}, 7000);
+    });
   }
   ,display_items: function() {
     return this.undrafted_players();
@@ -83,26 +113,28 @@ var DraftView = GenericView.extend({
 
           elem.droppable({
             drop: function(e, ui){
-              var dropElem = jQuery(e.target);
-              var dragElem = jQuery(ui.draggable);
-              var _pick = parseInt(dropElem.attr('pick'));
-              var _tid  = parseInt(dropElem.attr('tid'));
-              var _pid  = parseInt(dragElem.attr('pid'));
-              var _player = null;
+              if (true == _.isObject(view.selection)) {
+                var dropElem = jQuery(e.target);
+                var dragElem = jQuery(ui.draggable);
+                var _pick = parseInt(dropElem.attr('pick'));
+                var _tid  = parseInt(dropElem.attr('tid'));
+                var _pid  = parseInt(dragElem.attr('pid'));
+                var _player = null;
             
-              if (false == _.isFinite(_pid)) {
-                _player = view.items.findWhere({id:view.selection.item.id});
-              } else {
-                _player = view.items.findWhere({id:_pid});
-                dragElem.removeAttr('pid');
-              }
+                if (false == _.isFinite(_pid)) {
+                  _player = view.items.findWhere({id:view.selection.item.id});
+                } else {
+                  _player = view.items.findWhere({id:_pid});
+                  dragElem.removeAttr('pid');
+                }
 
-              _player.set('team_id', _tid);
-              _player.set('pick', _pick);
-              _player.save();
-              dropElem.attr('pid', _player.id);
-              view.clear_selection();
-              view.paint_draft_board();
+                _player.set('team_id', _tid);
+                _player.set('pick', _pick);
+                _player.save();
+                dropElem.attr('pid', _player.id);
+                view.clear_selection();
+                view.paint_draft_board();
+              }
             },
             hoverClass: "ui-state-highlight"
           });
@@ -156,15 +188,18 @@ var DraftView = GenericView.extend({
   ,render_draft: _.throttle(function() {
     var view = this;
 
-    this.draft_div.html(this.order_template({teams: this.selected_teams(), width: 190, players: this.items}));
+    view.draft_div.html(view.order_template({teams: view.selected_teams(), width: 190}));
 
-    if (0 == this.drafted_players().size()) {
-      jQuery('#sortable').sortable({update: function(e, ui) {view.draft_order()}, axis: 'x'});
-      this.save_draft_order();
+    if (0 == view.drafted_players().size()) {
+      jQuery('#sortable').sortable({update: function(e, ui) {
+        view.save_draft_order();
+      }, axis: 'x'});
+      view.save_draft_order();
+      view.draft_div.html(view.order_template({teams: view.selected_teams(), width: 190}));
     }
 
     jQuery('#sortable').disableSelection();
 
-    this.paint_draft_board();
+    view.paint_draft_board();
   }, 800)
 });

@@ -19,7 +19,13 @@ var Player = Backbone.Model.extend({
   ,season_id: function(){return this.get("season_id");}
   ,position: function(){return this.get("position");}
   ,is_goalie: function(){
-    return ("goalie" == this.get("position").toLowerCase());
+    var position = this.get("position");
+
+    if (true == _.isObject(position)) {
+      return ("goalie" == position.toLowerCase());
+    } else {
+      return false;
+    }
   }
   ,notes: function(){return this.get("notes");}
   ,defaults: function() {
@@ -97,7 +103,7 @@ var PlayerView = GenericView.extend({
       }, this);
 
       this.wrapper.getDataTable().setValue(this.selection.gitem.row, _.indexOf(this.items.gheaders(), "Notes"), item.notesToString());
-      this.player_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
+      this.detail_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
 
       item.save();
     }
