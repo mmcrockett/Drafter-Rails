@@ -46,11 +46,40 @@ var GenericView = Backbone.View.extend({
       view.items.remove(model);
     });
 
-    jQuery(window).bind('keyup', function(e) {
+    jQuery.ready(jQuery(window).bind('keyup', function(e) {
       if (46 == e.keyCode) {
         view.delete_rows();
       }
-    });
+    }));
+
+    jQuery.ready(jQuery(window).scroll(function() {
+      var y = jQuery(this).scrollTop();
+
+      if (y >= 400) {
+        view.detail_data_div.addClass('fixed');
+      } else {
+        view.detail_data_div.removeClass('fixed');
+      }
+    }));
+  }
+  ,add_note: function(value) {
+    value = value.trim();
+    if ((false == _.isEmpty(value)) && (true == _.isObject(this.selection))) {
+      var item = this.selection.item;
+      var note_column = _.indexOf(this.items.gheaders(), "Notes");
+
+      _.each(value.split(';'), function(note,i,obj) {
+        item.notes().push(note);
+      }, this);
+
+      if (-1 != note_column) {
+        this.wrapper.getDataTable().setValue(this.selection.gitem.row, note_column, item.notesToString());
+      }
+
+      this.detail_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
+
+      item.save();
+    }
   }
   ,delete_rows: function() {
     var view = this;

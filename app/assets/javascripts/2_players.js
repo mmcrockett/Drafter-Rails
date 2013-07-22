@@ -93,21 +93,6 @@ var PlayerView = GenericView.extend({
     var view = this;
     this.season_select.selectBox().change(function(){view.clear_selection();view.render();});
   }
-  ,add_note: function(value) {
-    value = value.trim();
-    if ((false == _.isEmpty(value)) && (true == _.isObject(this.selection))) {
-      var item = this.selection.item;
-
-      _.each(value.split(';'), function(note,i,obj) {
-        item.notes().push(note);
-      }, this);
-
-      this.wrapper.getDataTable().setValue(this.selection.gitem.row, _.indexOf(this.items.gheaders(), "Notes"), item.notesToString());
-      this.detail_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
-
-      item.save();
-    }
-  }
   ,parse_input: function(value) {
     var player = {};
     var notes  = [];

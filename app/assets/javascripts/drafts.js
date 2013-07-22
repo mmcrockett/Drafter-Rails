@@ -30,6 +30,7 @@ var DraftView = GenericView.extend({
     var view = this;
 
     jQuery.getJSON('/drafts/' + view.refresh_time.getTime() + '.json').done(function(data) {
+      var refresh = false;
       view.refresh_time = new Date(data.server_time * 1000);
       _.forEach(data.players, function(updated_player, i, obj) {
         var _player = view.items.findWhere({id:updated_player.id});
@@ -39,9 +40,13 @@ var DraftView = GenericView.extend({
         } else {
           view.items.unshift(new Player(updated_player));
         }
+        refresh = true;
       });
-      view.render();
-      view.render_draft();
+
+      if (true == refresh) {
+        view.render();
+        view.render_draft();
+      }
     }).fail(function() {
       view.last_refresh = old_refresh_date;
     }).always(function() {
@@ -64,12 +69,37 @@ var DraftView = GenericView.extend({
   ,selected_teams: function() {
     return new TeamCollection(this.teams.where({season_id:this.selected_season()}));
   }
-  ,save_draft_order: function() {
-    _.forEach(jQuery('#sortable').sortable("toArray"), function(id, i, obj) {
+  ,save_draft_order: function(order) {
+    _.forEach(order, function(id, i, obj) {
       var team = this.teams.findWhere({id:parseInt(id)});
       team.set("draft_position",i);
       team.save();
     }, this);
+  }
+  ,pick: function(dragElem, dropElem) {
+    var view = this;
+    var _pick = parseInt(dropElem.attr('pick'));
+    var _tid  = parseInt(dropElem.attr('tid'));
+    var _pid  = parseInt(dragElem.attr('pid'));
+    var _player = null;
+            
+    if (false == _.isFinite(_pid)) {
+      if (true == _.isObject(view.selection)) {
+        _player = view.items.findWhere({id:view.selection.item.id});
+      } else {
+        return false;
+      }
+    } else {
+      _player = view.items.findWhere({id:_pid});
+      dragElem.removeAttr('pid');
+    }
+
+    _player.set('team_id', _tid);
+    _player.set('pick', _pick);
+    _player.save();
+    dropElem.attr('pid', _player.id);
+    view.clear_selection();
+    view.paint_draft_board();
   }
   ,paint_draft_board: function() {
     var steams = this.selected_teams();
@@ -107,30 +137,7 @@ var DraftView = GenericView.extend({
 
           elem.droppable({
             drop: function(e, ui){
-              var dropElem = jQuery(e.target);
-              var dragElem = jQuery(ui.draggable);
-              var _pick = parseInt(dropElem.attr('pick'));
-              var _tid  = parseInt(dropElem.attr('tid'));
-              var _pid  = parseInt(dragElem.attr('pid'));
-              var _player = null;
-            
-              if (false == _.isFinite(_pid)) {
-                if (true == _.isObject(view.selection)) {
-                  _player = view.items.findWhere({id:view.selection.item.id});
-                } else {
-                  return false;
-                }
-              } else {
-                _player = view.items.findWhere({id:_pid});
-                dragElem.removeAttr('pid');
-              }
-
-              _player.set('team_id', _tid);
-              _player.set('pick', _pick);
-              _player.save();
-              dropElem.attr('pid', _player.id);
-              view.clear_selection();
-              view.paint_draft_board();
+              view.pick(jQuery(ui.draggable),jQuery(e.target));
             },
             hoverClass: "ui-state-highlight"
           });
@@ -180,18 +187,40 @@ var DraftView = GenericView.extend({
         return view.create_div_from_tr(e);
       }
     });
+    jQuery('.google-visualization-table-td').dblclick(
+      function(e) {
+        var elems = _.sortBy(jQuery('div[rid][cid]').not('div[pid]'), function(elem) {
+          elem = jQuery(elem);
+          var n = parseInt(elem.attr('pick'));
+
+          if (0 == n) {
+            var cid = parseInt(elem.attr('rid'));
+            return cid - 100;
+          } else {
+            return n;
+          }
+        });
+        view.pick(jQuery(e.target), jQuery(elems[0]));
+      }
+    );
   }
   ,render_draft: _.throttle(function() {
     var view = this;
+    var steams_sorted = new TeamCollection(_.sortBy(view.selected_teams().models, function(team) {
+      return team.draft_position();
+    }));
 
-    view.draft_div.html(view.order_template({teams: view.selected_teams(), width: 190}));
+    if ((0 != steams_sorted.size()) && (false == _.isFinite(steams_sorted.first().draft_position()))) {
+      view.save_draft_order(steams_sorted.pluck('id'));
+    }
+
+    view.draft_div.html(view.order_template({teams: steams_sorted, width: 190}));
 
     if (0 == view.drafted_players().size()) {
       jQuery('#sortable').sortable({update: function(e, ui) {
-        view.save_draft_order();
+        view.save_draft_order(jQuery('#sortable').sortable("toArray"));
+        view.render_draft();
       }, axis: 'x'});
-      view.save_draft_order();
-      view.draft_div.html(view.order_template({teams: view.selected_teams(), width: 190}));
     }
 
     jQuery('#sortable').disableSelection();
