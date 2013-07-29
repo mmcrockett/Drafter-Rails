@@ -10,22 +10,26 @@ var Season = Backbone.Model.extend({
       pointhog = '';
     }
 
-    return [this.name(), pointhog];
+    return [this.id, this.name(), pointhog];
   }
-  /*,notesToString: function(){
-    return this.player_notes().pluck('note').join('...');
-  }*/
 });
 
 var SeasonCollection = Backbone.Collection.extend({
   model: Season
-  ,gheaders: function(){return ["Season", "Pointhog URL"];}
+  ,gheaders: function() {
+    return [
+      {name:  'Id', type: 'number'}
+      ,{name:  'Season', type: 'string'}
+      ,{name: 'Pointhog URL', type: 'string'}
+    ];
+  }
   ,url: "/seasons"
 });
 
 var SeasonView = GenericView.extend({
   items: new SeasonCollection()
   ,initialize_child: function() {
+    this.sort.ascending = false;
     jQuery('#radio-div').hide();
   }
   ,parse_input: function(value) {

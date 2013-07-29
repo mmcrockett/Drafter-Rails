@@ -1,13 +1,19 @@
 var Import = Player.extend({
   gdata: function(){
-    return [this.name(), _.toString(this.games()), _.toString(this.goals()), _.toString(this.assists()), _.toString(this.pim())];
+    return [this.name(), this.games(), this.goals(), this.assists(), this.pim()];
   }
 });
 
 var ImportCollection = PlayerCollection.extend({
   model: Import
-  ,gheaders: function(){
-    return ["Name", "GP", "G", "A", "PIM"];
+  ,gheaders: function() {
+    return [
+      {name:  'Name', type: 'string'}
+      ,{name: 'GP', type: 'number'}
+      ,{name: 'G', type: 'number'}
+      ,{name: 'A', type: 'number'}
+      ,{name: 'PIM', type: 'number'}
+    ];
   }
 });
 

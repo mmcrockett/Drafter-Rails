@@ -9,7 +9,7 @@ var Team = Backbone.Model.extend({
 var TeamCollection = Backbone.Collection.extend({
   model: Team
   ,gheaders: function(){
-    return ["Team"]
+    return [{name: 'Team', type: 'string'}]
   }
   ,url: "/teams"
 });
