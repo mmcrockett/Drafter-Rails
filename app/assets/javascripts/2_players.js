@@ -32,10 +32,22 @@ var Player = Backbone.Model.extend({
     return {notes: []};
   }
   ,gdata_detailed: function(view){
-    return [this.name(), view.season_name(this.season_id()), _.toString(this.pick()), _.toString(this.games()), _.toString(this.points()), _.toString(this.goals()), _.toString(this.assists()), _.toString(this.pim()), this.position(), this.league(), view.team_name(this.team_id()), this.notesToString()];
+    return [this.name(), view.season_name(this.season_id()), this.pick(), this.games(), this.points(), this.goals(), this.assists(), this.pim(), this.position(), this.league(), view.team_name(this.team_id()), this.notesToString()];
   }
-  ,gdata: function(){
-    return [this.last_name(), this.first_name(), this.league(), this.position(), this.notesToString()]
+  ,gdata: function(view){
+    var last_pick;
+    var last_team_id;
+
+    _.forEach(view.detail_display_items(this), function(player_history, i, list) {
+      if ((false == _.isFinite(last_pick)) && (true == _.isFinite(player_history.pick()))) {
+        last_pick = player_history.pick();
+      }
+      if ((false == _.isFinite(last_team_id)) && (true == _.isFinite(player_history.team_id()))) {
+        last_team_id = player_history.team_id();
+      }
+    });
+
+    return [this.last_name(), this.first_name(), this.league(), this.position(), view.team_name(last_team_id), last_pick, this.notesToString()]
   }
   ,notesToString: function(){
     return this.notes().join('...');
@@ -45,10 +57,31 @@ var Player = Backbone.Model.extend({
 var PlayerCollection = Backbone.Collection.extend({
   model: Player
   ,gheaders_detailed: function() {
-    return ["Name", "Season", "Pick", "GP", "P", "G", "A", "PIM", "Position", "League", "Team", "Notes"];
+    return [
+      {name:  'Name', type: 'string'}
+      ,{name: 'Season', type: 'string'}
+      ,{name: 'Pick', type: 'number'}
+      ,{name: 'GP', type: 'number'}
+      ,{name: 'P', type: 'number'}
+      ,{name: 'G', type: 'number'}
+      ,{name: 'A', type: 'number'}
+      ,{name: 'PIM', type: 'number'}
+      ,{name: 'Position', type: 'string'}
+      ,{name: 'League', type: 'string'}
+      ,{name: 'Team', type: 'string'}
+      ,{name: 'Notes', type: 'string'}
+    ];
   }
-  ,gheaders: function(){
-    return ["Last", "First", "League", "Position", "Notes"]
+  ,gheaders: function() {
+    return [
+      {name:  'Last', type: 'string'}
+      ,{name: 'First', type: 'string'}
+      ,{name: 'League', type: 'string'}
+      ,{name: 'Position', type: 'string'}
+      ,{name: 'Team*', type: 'string'}
+      ,{name: 'Pick*', type: 'number'}
+      ,{name: 'Notes', type: 'string'}
+    ];
   }
   ,url: "/players"
 });
@@ -66,6 +99,7 @@ var PlayerView = GenericView.extend({
     this.items.unshift(player);
   }
   ,parse_csv: function(csv) {
+    csv = csv.trim();
     _.each(jQuery.csv.toObjects(csv), function(csv,i) {
       var player  = {};
       var notes   = [];
