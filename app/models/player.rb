@@ -56,7 +56,7 @@ class Player < ActiveRecord::Base
       self.notes.delete_if do |v|
         (nil != v.match(/Pointhog .* Stats/))
       end
-      self.notes   << "Pointhog #{league} Stats"
+      #self.notes   << "Pointhog #{league} Stats"
       self.save()
     end
   end
