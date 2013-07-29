@@ -1,5 +1,7 @@
 var GenericView = Backbone.View.extend({
-  initialize: function(items, options) {
+  bulk_input_default: "Position / Level,First Name,Last Name,Two League,Sharing,Out,Team Request,Other/Notes"
+  ,sort: {column: 0, ascending: true}
+  ,initialize: function(items, options) {
     var view = this;
     this.errors = this.items.clone();
     this.items.reset(items);
@@ -8,6 +10,7 @@ var GenericView = Backbone.View.extend({
     this.single_radio      = jQuery('#single-radio');
     this.bulk_add_button   = jQuery('#bulk-add-button');
     this.bulk_add_input    = jQuery('#bulk-import-field');
+    this.bulk_add_input.html(this.bulk_input_default);
     this.bulk_radio        = jQuery('#bulk-radio');
     this.data_div          = jQuery('#data-div');
     this.detail_data_div   = jQuery('#detail-data-div');
@@ -21,7 +24,7 @@ var GenericView = Backbone.View.extend({
     this.single_note_add_button.click(function(e){view.add_note(view.single_note_add_input.val());view.single_note_add_input.val('');});
     this.single_note_add_input.keypress(function(e){if (13 == e.which) {view.single_note_add_input.blur();view.single_note_add_button.click(); return false;}});
 
-    this.bulk_add_button.click(function(){view.parse_csv(view.bulk_add_input.val());view.bulk_add_input.val('');view.store();});
+    this.bulk_add_button.click(function(){view.parse_csv(view.bulk_add_input.val());view.bulk_add_input.val(view.bulk_input_default);view.store();});
 
     this.single_radio.click(view.single_add_display);
     this.bulk_radio.click(view.bulk_add_display);
@@ -153,8 +156,10 @@ var GenericView = Backbone.View.extend({
   ,display_items: function() {
     return this.items;
   }
-  ,detail_display_items: function() {
-    return this.items.where({last_name: this.selection.item.last_name(), first_name: this.selection.item.first_name()});
+  ,detail_display_items: function(player) {
+    return _.sortBy(this.items.where({last_name: player.last_name(), first_name: player.first_name()}), function(_player) {
+      return -_player.season_id();
+    });
   }
   ,set_selection: function() {
     if (true == _.isObject(this.selection)) {
@@ -196,13 +201,13 @@ var GenericView = Backbone.View.extend({
     var data = new google.visualization.DataTable();
     var view = this;
 
-    jQuery.each(display_items.gheaders(), function(i,v){
-      data.addColumn('string', v);
+    _.forEach(display_items.gheaders(), function(header, i, list) {
+      data.addColumn(header.type, header.name);
     });
 
     if (0 != this.errors.length) {
       this.errors.forEach(function(item, i, list){
-        var rowIndex = data.addRow(item.gdata());
+        var rowIndex = data.addRow(item.gdata(view));
 
         for (var j = 0; j < data.getNumberOfColumns(); j++) {
           data.setProperty(rowIndex, j, "style", "background-color:#FF7E7E;");
@@ -212,7 +217,7 @@ var GenericView = Backbone.View.extend({
 
     if (0 != display_items.length) {
       display_items.forEach(function(item, i, list){
-        var rowIndex = data.addRow(item.gdata());
+        var rowIndex = data.addRow(item.gdata(view));
 
         for (var j = 0; j < data.getNumberOfColumns(); j++) {
           if (true == item.isNew()) {
@@ -231,13 +236,21 @@ var GenericView = Backbone.View.extend({
       this.wrapper = new google.visualization.ChartWrapper({
                       chartType: 'Table',
                       dataTable: data,
-                      options: {showRowNumber: false, allowHtml: true, sortColumn: 0},
+                      options: {showRowNumber: false, allowHtml: true, sortColumn: view.sort.column, sortAscending: view.sort.ascending},
                       containerId: view.data_div.attr('id')
                     });
       google.visualization.events.addListener(this.wrapper, 'ready', function() {
         google.visualization.events.addListener(view.wrapper, 'select', function(){view.store_selection();view.display_detail_data();});
       });
+      google.visualization.events.addListener(this.wrapper, 'ready', function() {
+        google.visualization.events.addListener(view.wrapper.getChart(), 'sort', function(e){
+          view.sort.column    = e.column;
+          view.sort.ascending = e.ascending;
+        });
+      });
     } else {
+      this.wrapper.setOption('sortColumn',view.sort.column);
+      this.wrapper.setOption('sortAscending',view.sort.ascending);
       this.wrapper.setDataTable(data);
     }
 
@@ -253,11 +266,12 @@ var GenericView = Backbone.View.extend({
     if (true == _.isObject(this.selection)) {
       var data = new google.visualization.DataTable();
       var view = this;
-      var display_items = this.detail_display_items();
+      var display_items = this.detail_display_items(this.selection.item);
 
-      jQuery.each(this.items.gheaders_detailed(), function(i,v){
-        data.addColumn('string', v);
+      _.forEach(this.items.gheaders_detailed(), function(header, i, list) {
+        data.addColumn(header.type, header.name);
       });
+
 
       if (0 != display_items.length) {
         display_items.forEach(function(item, i, list){
