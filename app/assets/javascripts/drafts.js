@@ -178,7 +178,7 @@ var DraftView = GenericView.extend({
 
     return jQuery('<div id="player-drag">' + name + '</div>').appendTo('body');
   }
-  ,wrapper_ready: function() {
+  ,google_chart_make_draggable: function() {
     var view = this;
     jQuery('.google-visualization-table-td').draggable({
       zIndex:99999,
@@ -187,6 +187,9 @@ var DraftView = GenericView.extend({
         return view.create_div_from_tr(e);
       }
     });
+  }
+  ,google_chart_make_clickable: function() {
+    var view = this;
     jQuery('.google-visualization-table-td').dblclick(
       function(e) {
         var elems = _.sortBy(jQuery('div[rid][cid]').not('div[pid]'), function(elem) {
@@ -203,6 +206,15 @@ var DraftView = GenericView.extend({
         view.pick(jQuery(e.target), jQuery(elems[0]));
       }
     );
+  }
+  ,wrapper_ready: function() {
+    var view = this;
+    google.visualization.events.addListener(view.wrapper.getChart(), 'sort', function(e){
+      view.google_chart_make_draggable();
+      view.google_chart_make_clickable();
+    });
+    view.google_chart_make_clickable();
+    view.google_chart_make_draggable();
   }
   ,render_draft: _.throttle(function() {
     var view = this;
