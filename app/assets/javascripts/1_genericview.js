@@ -186,6 +186,19 @@ var GenericView = Backbone.View.extend({
       //this.selection = null;
     }*/
   }
+  ,is_crown_king: function(gdata) {
+    var isCK = false;
+
+    _.forEach(gdata, function(data, i, list) {
+      if (true == _.isString(data)) {
+        if (-1 != data.toLowerCase().indexOf("crown king")) {
+          isCK = true;
+        }
+      }
+    });
+
+    return isCK;
+  }
   ,data_div_widths: function() {
     var widths   = {pad: 30};
     widths.left  = Math.floor((jQuery('body').innerWidth()-widths.pad)*0.4);
@@ -217,15 +230,18 @@ var GenericView = Backbone.View.extend({
 
     if (0 != display_items.length) {
       display_items.forEach(function(item, i, list){
-        var rowIndex = data.addRow(item.gdata(view));
+        var gdata    = item.gdata(view);
+        var rowIndex = data.addRow(gdata);
+        var isCK     = view.is_crown_king(gdata);
+        data.setRowProperty(rowIndex, "player_id", item.id);
 
         for (var j = 0; j < data.getNumberOfColumns(); j++) {
           if (true == item.isNew()) {
             data.setProperty(rowIndex, j, "style", "background-color:#CCFFFF;");
           } else if (true == item.error) {
             data.setProperty(rowIndex, j, "style", "background-color:#FF7E7E;");
-          } else if (0 == j) {
-            data.setRowProperty(rowIndex, "player_id", item.id);
+          } else if (true == isCK) {
+            data.setProperty(rowIndex, j, "style", "background-color:#dff0d8;");
           }
         }
       }, this);
