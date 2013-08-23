@@ -33,7 +33,14 @@ var SeasonView = GenericView.extend({
     jQuery('#radio-div').hide();
   }
   ,parse_input: function(value) {
-    this.items.unshift(new Season({name: value.trim()}));
+    value = value.trim();
+
+    if (false == _.isEmpty(value)) {
+      jQuery.error('add-season');
+      this.items.unshift(new Season({name: value}));
+    } else {
+      jQuery.error('add-season', 'Season Name is blank.');
+    }
   }
   ,data_div_widths: function() {
     var widths   = {pad: 10};

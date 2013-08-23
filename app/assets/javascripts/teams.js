@@ -17,7 +17,14 @@ var TeamCollection = Backbone.Collection.extend({
 var TeamView = GenericView.extend({
   items: new TeamCollection()
   ,parse_input: function(value) {
-    this.items.unshift(new Team({name: value.trim(), season_id:this.selected_season()}));
+    value = value.trim();
+
+    if (false == _.isEmpty(value)) {
+      jQuery.error('add-team');
+      this.items.unshift(new Team({name: value, season_id:this.selected_season()}));
+    } else {
+      jQuery.error('add-team', 'Team Name is blank.');
+    }
   }
   ,display_items: function() {
     return new TeamCollection(this.items.where({season_id:this.selected_season()}));
