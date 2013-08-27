@@ -59,19 +59,29 @@ var GenericView = Backbone.View.extend({
     value = value.trim();
     if ((false == _.isEmpty(value)) && (true == _.isObject(this.selection))) {
       var item = this.selection.item;
-      var note_column = _.indexOf(this.items.gheaders(), "Notes");
+      var note_column_index = _.indexOf(_.pluck(this.items.gheaders(), 'name'), "Notes");
+      var note_column_detail_index = _.indexOf(_.pluck(this.items.gheaders_detailed(), 'name'), "Notes");
+
+      if (-1 == note_column_index) {
+        console.warning("Notes are broken. Can't find column.");
+      }
+      if (-1 == note_column_detail_index) {
+        console.warning("Note details are broken. Can't find column.");
+      }
 
       _.each(value.split(';'), function(note,i,obj) {
         item.notes().push(note);
       }, this);
 
-      if (-1 != note_column) {
-        this.wrapper.getDataTable().setValue(this.selection.gitem.row, note_column, item.notesToString());
+      if (-1 != note_column_index) {
+        this.wrapper.getDataTable().setValue(this.selection.gitem.row, note_column_index, item.notesToString());
+
+        if (-1 != note_column_detail_index) {
+          this.detail_data_wrapper.getDataTable().setValue(0, note_column_detail_index, item.notesToString());
+        }
+
+        item.save();
       }
-
-      this.detail_data_wrapper.getDataTable().setValue(0, _.indexOf(this.items.gheaders_detailed(), "Notes"), item.notesToString())
-
-      item.save();
     }
   }
   ,delete_rows: function() {
@@ -240,7 +250,6 @@ var GenericView = Backbone.View.extend({
     }
 
     if (true == _.isUndefined(this.wrapper)) {
-      //view.data_div.width(this.data_div_widths().left);
       this.wrapper = new google.visualization.ChartWrapper({
                       chartType: 'Table',
                       dataTable: data,
