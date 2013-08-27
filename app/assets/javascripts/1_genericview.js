@@ -94,8 +94,11 @@ var GenericView = Backbone.View.extend({
       buttons: {
         "Delete all items": function() {
           $(this).dialog("close");
+          var destroy_items = [];
           _.forEach(view.wrapper.getChart().getSelection(), function(gitem, i, obj) {
-            item = view.items.findWhere({id: view.wrapper.getDataTable().getRowProperty(gitem.row, "player_id")});
+            destroy_items.push(view.items.findWhere({id: view.wrapper.getDataTable().getRowProperty(gitem.row, "player_id")}));
+          }, view);
+          _.forEach(destroy_items, function(item, i, obj) {
             item.destroy();
           }, view);
         },
