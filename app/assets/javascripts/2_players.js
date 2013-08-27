@@ -47,6 +47,10 @@ var Player = Backbone.Model.extend({
       }
     });
 
+    if (false == _.isFinite(last_pick)) {
+      last_pick = 999;
+    }
+
     return [this.last_name(), this.first_name(), this.league(), this.position(), view.team_name(last_team_id), last_pick, this.notesToString()]
   }
   ,notesToString: function(){
