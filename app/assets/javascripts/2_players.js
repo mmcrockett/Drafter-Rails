@@ -114,8 +114,14 @@ var PlayerView = GenericView.extend({
           player.last_name = v;
         } else if (-1 != lower_k.indexOf('position')) {
           var parts = v.split('-');
-          player.position = parts[0];
-          player.league = parts[1];
+
+          if (true == _.isString(parts[0])) {
+            player.position = parts[0].trim();
+          }
+
+          if (true == _.isString(parts[1])) {
+            player.league = parts[1].trim();
+          }
         } else if (false == _.isEmpty(v)) {
           notes.push(k + ' ' + v);
         }
