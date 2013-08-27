@@ -54,6 +54,16 @@ var GenericView = Backbone.View.extend({
         view.delete_rows();
       }
     }));
+
+    jQuery.ready(jQuery(window).scroll(function() {
+      var y = jQuery(this).scrollTop();
+
+      if (y >= 0) {
+        view.detail_data_div.addClass('fixed');
+      } else {
+        view.detail_data_div.removeClass('fixed');
+      }
+    }));
   }
   ,add_note: function(value) {
     value = value.trim();
@@ -202,10 +212,32 @@ var GenericView = Backbone.View.extend({
     return isCK;
   }
   ,detail_modal: function() {
+    var lastmenuitem = jQuery('[role=menuitem]:last');
+    var selectorhr   = jQuery('#season-selector-hr');
+    var width  = this.data_div.width() * 0.5;
+    var height = 250;
+
+    if (1 === lastmenuitem.size()) {
+      width = Math.floor(this.data_div.width() - lastmenuitem.position().left - lastmenuitem.width());
+    }
+    if (1 === selectorhr.size()) {
+      height = Math.floor(selectorhr.position().top);
+    }
+
     this.detail_data_div.dialog({
       resizable: true
-      ,width:this.data_div.width()
-      //,title:"Mike Crockett Details"
+      ,width:width
+      ,height:height
+      ,dialogClass: "fixed"
+      ,resizeStop: function(e, ui) {
+        jQuery('[aria-describedby=detail-data-div]').css('position', 'fixed');
+      }
+      ,position: {
+        my: "right top"
+        ,at: "right top"
+        ,of: window
+      }
+      ,title:"Player History"
     });
   }
   ,render: _.throttle(function() {

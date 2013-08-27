@@ -6,7 +6,7 @@
     <% end %>
   </select>
 </div>
-<hr>
+<hr id="season-selector-hr">
 <% if (true == seasons.empty?()) %>
 <%= javascript_tag("jQuery.ready(jQuery.error('no-seasons', 'You have no seasons. Please add a season before continuing.'))") %>
 <% end %>
