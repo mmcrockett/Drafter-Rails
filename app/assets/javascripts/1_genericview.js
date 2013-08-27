@@ -54,16 +54,6 @@ var GenericView = Backbone.View.extend({
         view.delete_rows();
       }
     }));
-
-    jQuery.ready(jQuery(window).scroll(function() {
-      var y = jQuery(this).scrollTop();
-
-      if (y >= 400) {
-        view.detail_data_div.addClass('fixed');
-      } else {
-        view.detail_data_div.removeClass('fixed');
-      }
-    }));
   }
   ,add_note: function(value) {
     value = value.trim();
@@ -173,7 +163,6 @@ var GenericView = Backbone.View.extend({
   }
   ,clear_selection: function() {
     this.selection = null;
-    this.detail_data_div.hide();
   }
   ,store_selection: function() {
     var gitems = this.wrapper.getChart().getSelection();
@@ -202,12 +191,12 @@ var GenericView = Backbone.View.extend({
 
     return isCK;
   }
-  ,data_div_widths: function() {
-    var widths   = {pad: 30};
-    widths.left  = Math.floor((jQuery('body').innerWidth()-widths.pad)*0.4);
-    widths.right = jQuery('body').innerWidth() - widths.pad - widths.left;
-
-    return widths;
+  ,detail_modal: function() {
+    this.detail_data_div.dialog({
+      resizable: true
+      ,width:this.data_div.width()
+      //,title:"Mike Crockett Details"
+    });
   }
   ,render: _.throttle(function() {
     if (0 == this.data_div.length) {
@@ -251,7 +240,7 @@ var GenericView = Backbone.View.extend({
     }
 
     if (true == _.isUndefined(this.wrapper)) {
-      view.data_div.width(this.data_div_widths().left);
+      //view.data_div.width(this.data_div_widths().left);
       this.wrapper = new google.visualization.ChartWrapper({
                       chartType: 'Table',
                       dataTable: data,
@@ -299,7 +288,7 @@ var GenericView = Backbone.View.extend({
       }
 
       if (true == _.isUndefined(this.detail_data_wrapper)) {
-        jQuery('#detail-data-div').width(this.data_div_widths().right);
+        this.detail_modal();
         this.detail_data_wrapper = new google.visualization.ChartWrapper({
                         chartType: 'Table',
                         dataTable: data,
@@ -308,13 +297,11 @@ var GenericView = Backbone.View.extend({
                       });
       } else {
         this.detail_data_wrapper.setDataTable(data);
+        this.detail_data_div.dialog("open");
       }
 
       this.detail_data_wrapper.draw();
-      this.detail_data_div.show();
-    } /*else {
-      this.detail_data_div.hide();
-    }*/
+    }
   }, 800)
 });
 

@@ -42,13 +42,6 @@ var SeasonView = GenericView.extend({
       jQuery.error('add-season', 'Season Name is blank.');
     }
   }
-  ,data_div_widths: function() {
-    var widths   = {pad: 10};
-    widths.left  = Math.floor((jQuery('body').innerWidth()-widths.pad)*0.9);
-    widths.right = jQuery('body').innerWidth() - widths.pad - widths.left;
-
-    return widths;
-  }
   ,wrapper_ready: function() {
     var view = this;
     jQuery('.google-visualization-table-td:last-of-type').editable(function(value, settings) {
