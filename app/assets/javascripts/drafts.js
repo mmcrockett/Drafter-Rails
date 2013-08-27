@@ -146,7 +146,7 @@ var DraftView = GenericView.extend({
           if (true == player.is_goalie()) {
             elem.addClass("goalie");
           }
-          value = player.name();
+          value = '(' + pick + ')' + player.name();
           elem.draggable({
             revert:true,
             zIndex:99999
