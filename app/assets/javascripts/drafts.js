@@ -101,7 +101,7 @@ var DraftView = GenericView.extend({
     view.clear_selection();
     view.paint_draft_board();
   }
-  ,paint_draft_board: function() {
+  ,paint_draft_board: _.throttle(function() {
     var steams = this.selected_teams();
     var view = this;
     var pick = 0;
@@ -146,7 +146,7 @@ var DraftView = GenericView.extend({
           if (true == player.is_goalie()) {
             elem.addClass("goalie");
           }
-          value = '(' + pick + ')' + player.name();
+          value = player.name() + ' (' + pick + ')';
           elem.draggable({
             revert:true,
             zIndex:99999
@@ -166,7 +166,7 @@ var DraftView = GenericView.extend({
         elem.attr("tid", tid);
       });
     });
-  }
+  }, 800)
   ,create_div_from_tr: function(e) {
     var name = "Unknown McUnknowny";
 
