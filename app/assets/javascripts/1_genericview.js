@@ -50,8 +50,10 @@ var GenericView = Backbone.View.extend({
     });
 
     jQuery.ready(jQuery(window).bind('keyup', function(e) {
-      if ((46 == e.keyCode) && (false == view.single_add_input.is(':focus')) && (false == view.bulk_add_input.is(':focus'))) {
-        view.delete_rows();
+      if ((46 == e.keyCode) || (8 == e.keyCode))
+        if ((false == view.single_add_input.is(':focus')) && (false == view.bulk_add_input.is(':focus'))) {
+          view.delete_rows();
+        }
       }
     }));
 
