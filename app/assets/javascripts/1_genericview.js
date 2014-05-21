@@ -200,16 +200,22 @@ var GenericView = Backbone.View.extend({
       //this.selection = null;
     }*/
   }
-  ,is_crown_king: function(gdata) {
+  ,is_crown_king: function(detailed_items) {
     var isCK = false;
 
-    _.forEach(gdata, function(data, i, list) {
-      if (true == _.isString(data)) {
-        if (-1 != data.toLowerCase().indexOf("crown king")) {
-          isCK = true;
+    if (0 != detailed_items.length) {
+      detailed_items.forEach(function(item, i, list) {
+        if (i < 4) {
+          _.forEach(item.gdata_detailed(this), function(data, i, list) {
+            if ((false == isCK) && (true == _.isString(data))) {
+              if (-1 != data.toLowerCase().indexOf("crown king")) {
+                isCK = true;
+              }
+            }
+          }, this);
         }
-      }
-    });
+      }, this);
+    }
 
     return isCK;
   }
@@ -268,7 +274,7 @@ var GenericView = Backbone.View.extend({
       display_items.forEach(function(item, i, list){
         var gdata    = item.gdata(view);
         var rowIndex = data.addRow(gdata);
-        var isCK     = view.is_crown_king(gdata);
+        var isCK     = view.is_crown_king(view.detail_display_items(item));
         data.setRowProperty(rowIndex, "player_id", item.id);
 
         for (var j = 0; j < data.getNumberOfColumns(); j++) {
