@@ -282,6 +282,8 @@ var GenericView = Backbone.View.extend({
             data.setProperty(rowIndex, j, "style", "background-color:#CCFFFF;");
           } else if (true == item.error) {
             data.setProperty(rowIndex, j, "style", "background-color:#FF7E7E;");
+          } else if (true == item.is_goalie()) {
+            data.setProperty(rowIndex, j, "style", "background-color:#FFF380;");
           } else if (true == isCK) {
             data.setProperty(rowIndex, j, "style", "background-color:#dff0d8;");
           }
