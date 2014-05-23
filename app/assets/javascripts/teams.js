@@ -33,5 +33,6 @@ var TeamView = GenericView.extend({
     var view = this;
     this.season_select.selectBox().change(function(){view.render();});
     jQuery('#radio-div').hide();
+    this.copy_previous.show();
   }
 });

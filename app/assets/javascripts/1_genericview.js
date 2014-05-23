@@ -1,5 +1,5 @@
 var GenericView = Backbone.View.extend({
-  bulk_input_default: "Position / Level,First Name,Last Name,Two League,Sharing,Team Request,Other/Notes"
+  bulk_input_default: "Position / Level,First Name,Last Name,Two League,Sharing,Team Request,Other/Notes\nSKATER - B1 DIV,first,last,,,,"
   ,sort: {column: 0, ascending: true}
   ,initialize: function(items, options) {
     var view = this;
@@ -13,16 +13,18 @@ var GenericView = Backbone.View.extend({
     this.bulk_add_input.html(this.bulk_input_default);
     this.bulk_radio        = jQuery('#bulk-radio');
     this.data_div          = jQuery('#data-div');
-    this.detail_data_div   = jQuery('#detail-data-div');
     this.season_select     = jQuery('#season-select');
     this.single_note_add_button = jQuery('#single-note-add-button');
     this.single_note_add_input  = jQuery('#single-note-import-field');
+    this.copy_previous          = jQuery('#copy-previous');
 
     this.single_add_button.click(function(e){view.parse_input(view.single_add_input.val());view.single_add_input.val('');view.store();});
     this.single_add_input.keypress(function(e){if (13 == e.which) {view.single_add_input.blur();view.single_add_button.click(); return false;}});
 
     this.single_note_add_button.click(function(e){view.add_note(view.single_note_add_input.val());view.single_note_add_input.val('');});
     this.single_note_add_input.keypress(function(e){if (13 == e.which) {view.single_note_add_input.blur();view.single_note_add_button.click(); return false;}});
+
+    this.copy_previous.click(function(e){view.copy_previous_seasons_teams(view.single_add_input.val());view.store();view.single_add_input.val('');});
 
     this.bulk_add_button.click(function(){view.parse_csv(view.bulk_add_input.val());view.bulk_add_input.val(view.bulk_input_default);view.store();});
 
@@ -37,7 +39,6 @@ var GenericView = Backbone.View.extend({
 
     this.listenTo(this.items, 'sync', function() {
       view.render();
-      view.display_detail_data();
     });
     this.listenTo(this.items, 'destroy', function() {
       view.clear_selection();
@@ -49,52 +50,13 @@ var GenericView = Backbone.View.extend({
       view.items.remove(model);
     });
 
-    jQuery.ready(jQuery(window).bind('keyup', function(e) {
+    jQuery.ready(jQuery(window).bind('keyup.deletekey', function(e) {
       if (46 == e.keyCode) {
         if ((false == view.single_add_input.is(':focus')) && (false == view.bulk_add_input.is(':focus'))) {
           view.delete_rows();
         }
       }
     }));
-
-    jQuery.ready(jQuery(window).scroll(function() {
-      var y = jQuery(this).scrollTop();
-
-      if (y >= 0) {
-        view.detail_data_div.addClass('fixed');
-      } else {
-        view.detail_data_div.removeClass('fixed');
-      }
-    }));
-  }
-  ,add_note: function(value) {
-    value = value.trim();
-    if ((false == _.isEmpty(value)) && (true == _.isObject(this.selection))) {
-      var item = this.selection.item;
-      var note_column_index = _.indexOf(_.pluck(this.items.gheaders(), 'name'), "Notes");
-      var note_column_detail_index = _.indexOf(_.pluck(this.items.gheaders_detailed(), 'name'), "Notes");
-
-      if (-1 == note_column_index) {
-        console.warning("Notes are broken. Can't find column.");
-      }
-      if (-1 == note_column_detail_index) {
-        console.warning("Note details are broken. Can't find column.");
-      }
-
-      _.each(value.split(';'), function(note,i,obj) {
-        item.notes().push(note);
-      }, this);
-
-      if (-1 != note_column_index) {
-        this.wrapper.getDataTable().setValue(this.selection.gitem.row, note_column_index, item.notesToString());
-
-        if (-1 != note_column_detail_index) {
-          this.detail_data_wrapper.getDataTable().setValue(0, note_column_detail_index, item.notesToString());
-        }
-
-        item.save();
-      }
-    }
   }
   ,delete_rows: function() {
     var view = this;
@@ -171,10 +133,14 @@ var GenericView = Backbone.View.extend({
   ,display_items: function() {
     return this.items;
   }
-  ,detail_display_items: function(player) {
-    return _.sortBy(this.items.where({last_name: player.last_name(), first_name: player.first_name()}), function(_player) {
-      return -_player.season_id();
-    });
+  ,other_seasons_by_player: function(player) {
+    if (player instanceof Player) {
+      return _.sortBy(this.items.where({last_name: player.last_name(), first_name: player.first_name()}), function(_player) {
+        return -_player.season_id();
+      });
+    } else {
+      return [];
+    }
   }
   ,set_selection: function() {
     if (true == _.isObject(this.selection)) {
@@ -200,6 +166,45 @@ var GenericView = Backbone.View.extend({
       //this.selection = null;
     }*/
   }
+  ,copy_previous_seasons_teams: function(season_name) {
+    var season_id = null;
+    var season_name_lower = season_name.toLowerCase();
+    var selected_season_id = this.selected_season();
+    var previous_season_id = 0;
+
+    this.season_select.find('option').each(function(i, optElem, list) {
+      var optElem = jQuery(optElem);
+        if ((null == season_id) && (false == _.isEmpty(season_name_lower)) && (-1 != optElem.text().toLowerCase().indexOf(season_name_lower))) {
+          season_id = optElem.val();
+        } else if (selected_season_id != optElem.val()) {
+          if ((selected_season_id - optElem.val()) < (selected_season_id - previous_season_id)) {
+            previous_season_id = optElem.val();
+          }
+        }
+      }
+    );
+
+    if (null == season_id) {
+      if (true == _.isEmpty(season_name_lower)) {
+        console.log("Using found previous season: " + previous_season_id);
+        season_id = previous_season_id;
+      } else {
+        console.error("Couldn't find season you're looking for '" + season_name_lower + "'");
+        season_id = -1;
+      }
+    }
+
+    this.items.where({season_id: parseInt(season_id)}).forEach(function(item, i, list) {
+      this.parse_input(item.name());
+    }, this);
+  }
+  ,is_goalie: function(item) {
+    if (item instanceof Player) {
+      return item.is_goalie();
+    } else {
+      return false;
+    }
+  }
   ,is_crown_king: function(detailed_items) {
     var isCK = false;
 
@@ -218,35 +223,6 @@ var GenericView = Backbone.View.extend({
     }
 
     return isCK;
-  }
-  ,detail_modal: function() {
-    var lastmenuitem = jQuery('[role=menuitem]:last');
-    var selectorhr   = jQuery('#season-selector-hr');
-    var width  = this.data_div.width() * 0.5;
-    var height = 250;
-
-    if (1 === lastmenuitem.size()) {
-      width = Math.floor(this.data_div.width() - lastmenuitem.position().left - lastmenuitem.width());
-    }
-    if (1 === selectorhr.size()) {
-      height = Math.floor(selectorhr.position().top);
-    }
-
-    this.detail_data_div.dialog({
-      resizable: true
-      ,width:width
-      ,height:height
-      ,dialogClass: "fixed"
-      ,resizeStop: function(e, ui) {
-        jQuery('[aria-describedby=detail-data-div]').css('position', 'fixed');
-      }
-      ,position: {
-        my: "right top"
-        ,at: "right top"
-        ,of: window
-      }
-      ,title:"Player History"
-    });
   }
   ,render: _.throttle(function() {
     if (0 == this.data_div.length) {
@@ -274,7 +250,8 @@ var GenericView = Backbone.View.extend({
       display_items.forEach(function(item, i, list){
         var gdata    = item.gdata(view);
         var rowIndex = data.addRow(gdata);
-        var isCK     = view.is_crown_king(view.detail_display_items(item));
+        var isCK     = view.is_crown_king(view.other_seasons_by_player(item));
+        var isGoalie = view.is_goalie(item);
         data.setRowProperty(rowIndex, "player_id", item.id);
 
         for (var j = 0; j < data.getNumberOfColumns(); j++) {
@@ -282,7 +259,7 @@ var GenericView = Backbone.View.extend({
             data.setProperty(rowIndex, j, "style", "background-color:#CCFFFF;");
           } else if (true == item.error) {
             data.setProperty(rowIndex, j, "style", "background-color:#FF7E7E;");
-          } else if (true == item.is_goalie()) {
+          } else if (true == isGoalie) {
             data.setProperty(rowIndex, j, "style", "background-color:#FFF380;");
           } else if (true == isCK) {
             data.setProperty(rowIndex, j, "style", "background-color:#dff0d8;");
@@ -299,7 +276,10 @@ var GenericView = Backbone.View.extend({
                       containerId: view.data_div.attr('id')
                     });
       google.visualization.events.addListener(this.wrapper, 'ready', function() {
-        google.visualization.events.addListener(view.wrapper, 'select', function(){view.store_selection();view.display_detail_data();});
+        google.visualization.events.addListener(view.wrapper, 'select', function(){view.store_selection();});
+      });
+      google.visualization.events.addListener(this.wrapper, 'ready', function() {
+        jQuery('.player-link').click(function(e){window.open(e.target.href, '_blank');return false;});
       });
       google.visualization.events.addListener(this.wrapper, 'ready', function() {
         google.visualization.events.addListener(view.wrapper.getChart(), 'sort', function(e){
@@ -320,39 +300,6 @@ var GenericView = Backbone.View.extend({
     google.visualization.events.addListener(this.wrapper, 'ready', function() {
       view.wrapper_ready();
     });
-  }, 800)
-  ,display_detail_data: _.throttle(function() {
-    if (true == _.isObject(this.selection)) {
-      var data = new google.visualization.DataTable();
-      var view = this;
-      var display_items = this.detail_display_items(this.selection.item);
-
-      _.forEach(this.items.gheaders_detailed(), function(header, i, list) {
-        data.addColumn(header.type, header.name);
-      });
-
-
-      if (0 != display_items.length) {
-        display_items.forEach(function(item, i, list){
-          data.addRow(item.gdata_detailed(view));
-        }, this);
-      }
-
-      if (true == _.isUndefined(this.detail_data_wrapper)) {
-        this.detail_modal();
-        this.detail_data_wrapper = new google.visualization.ChartWrapper({
-                        chartType: 'Table',
-                        dataTable: data,
-                        options: {showRowNumber: false, allowHtml: true, sort: 'disable'},
-                        containerId: 'detail-data-gchart-div'
-                      });
-      } else {
-        this.detail_data_wrapper.setDataTable(data);
-        this.detail_data_div.dialog("open");
-      }
-
-      this.detail_data_wrapper.draw();
-    }
   }, 800)
 });
 

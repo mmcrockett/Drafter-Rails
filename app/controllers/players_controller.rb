@@ -15,6 +15,10 @@ class PlayersController < ApplicationController
   def show
     @player = Player.find(params[:id])
 
+    @playerdata = Player.where(:first_name => @player.first_name).where(:last_name => @player.last_name).order("season_id DESC")
+
+    @title = "Draft - #{@player.first_name} #{@player.last_name}"
+
     respond_to do |format|
       format.html # show.html.erb
       format.json { render :json => @player }

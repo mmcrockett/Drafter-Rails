@@ -38,7 +38,7 @@ var Player = Backbone.Model.extend({
     var last_pick;
     var last_team_id;
 
-    _.forEach(view.detail_display_items(this), function(player_history, i, list) {
+    _.forEach(view.other_seasons_by_player(this), function(player_history, i, list) {
       if ((false == _.isFinite(last_pick)) && (true == _.isFinite(player_history.pick()))) {
         last_pick = player_history.pick();
       }
@@ -51,7 +51,7 @@ var Player = Backbone.Model.extend({
       last_pick = 999;
     }
 
-    return [this.last_name(), this.first_name(), this.league(), this.position(), view.team_name(last_team_id), last_pick, this.notesToString()]
+    return [this.last_name(), this.first_name(), this.league(), this.position(), view.team_name(last_team_id), last_pick, this.notesToString(), '<a class="ui-icon ui-icon-info player-link" href="' + this.url() + '"></a>']
   }
   ,notesToString: function(){
     return this.notes().join('...');
@@ -85,6 +85,7 @@ var PlayerCollection = Backbone.Collection.extend({
       ,{name: 'Team*', type: 'string'}
       ,{name: 'Pick*', type: 'number'}
       ,{name: 'Notes', type: 'string'}
+      ,{name:  '', type: 'string'}
     ];
   }
   ,url: "/players"
