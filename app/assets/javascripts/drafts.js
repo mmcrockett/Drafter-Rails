@@ -28,10 +28,11 @@ var DraftView = GenericView.extend({
   }
   ,refresh: function() {
     var view = this;
+    var time_pad = -500;
 
     jQuery.getJSON('/drafts/' + view.refresh_time.getTime() + '.json').done(function(data) {
       var refresh = false;
-      view.refresh_time = new Date(data.server_time * 1000);
+      view.refresh_time = new Date(data.server_time * 1000 + time_pad);
       _.forEach(data.players, function(updated_player, i, obj) {
         var _player = view.items.findWhere({id:updated_player.id});
 
