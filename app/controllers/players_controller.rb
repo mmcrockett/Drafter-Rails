@@ -13,11 +13,17 @@ class PlayersController < ApplicationController
   # GET /players/1
   # GET /players/1.json
   def show
-    @player = Player.find(params[:id])
+    id = params[:id]
 
-    @playerdata = Player.where(:first_name => @player.first_name).where(:last_name => @player.last_name).order("season_id DESC")
-
-    @title = "Draft - #{@player.first_name} #{@player.last_name}"
+    if (0 != id.to_i)
+      @player = Player.find(params[:id])
+      @playerdata = Player.where(:first_name => @player.first_name).where(:last_name => @player.last_name).order("season_id DESC")
+      @title = "Draft - #{@player.first_name} #{@player.last_name}"
+    else
+      id = id.capitalize
+      @playerdata = Player.where("first_name = ? OR last_name = ?", id, id).order("last_name ASC").order("first_name ASC").order("season_id DESC")
+      @title = "Draft - Search - #{id}"
+    end
 
     respond_to do |format|
       format.html # show.html.erb
