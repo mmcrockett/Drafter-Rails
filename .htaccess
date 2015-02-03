@@ -1,2 +1,8 @@
 PassengerRuby /home/washingrvingrails/.rvm/gems/ruby-2.1.3/wrappers/ruby
 SetEnv GEM_PATH /home/washingrvingrails/hockeydraft.mmcrockett.com/shared/bundle
+AuthName "Hockey Draft Protection"
+AuthType Basic
+AuthUserFile /home/washingrvingrails/.hockeydraft_htpasswd
+Require valid-user
+ExpiresActive On
+ExpiresDefault "access plus 2 days"
