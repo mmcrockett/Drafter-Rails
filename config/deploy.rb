@@ -1,8 +1,9 @@
 require 'bundler/capistrano'
+require 'rvm/capistrano'
 
-set :user, "hockeydraft"
+set :user, "washingrvingrails"
 set :domain, "hockeydraft.mmcrockett.com"
-set :applicationdir, "/home/hockeydraft/hockeydraft.mmcrockett.com"
+set :applicationdir, "/home/washingrvingrails/hockeydraft.mmcrockett.com"
 set :application, "hockeydraft"
 set :rails_env, :production
 set :use_sudo, false
@@ -10,9 +11,6 @@ set :use_sudo, false
 set :scm, :git
 set :branch, "master"
 set :repository,  "git@github.com:mmcrockett/Drafter-Rails.git"
-set :default_environment, {
-  'PATH' => "/usr/lib/ruby/gems/1.8/bin:$PATH"
-}
 
 # roles (servers)
 role :web, domain
