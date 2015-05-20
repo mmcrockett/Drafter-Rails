@@ -131,7 +131,10 @@ var PlayerView = GenericView.extend({
           notes.push(k + ' ' + v);
         }
       });
-      this.add_player(player, notes);
+
+      if ((-1 != player.league.indexOf('B1 ')) || (-1 != player.league.indexOf('B2 ')) || (-1 != player.league.indexOf('A '))) {
+        this.add_player(player, notes);
+      }
     }, this);
   }
   ,initialize_child: function(options) {

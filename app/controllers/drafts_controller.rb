@@ -3,7 +3,7 @@ class DraftsController < ApplicationController
   # GET /drafts.json
   def index
     @teams   = Team.all
-    @players = Player.all
+    @players = Player.where("league LIKE ? OR pick IS NOT NULL", "%B1%")
 
     respond_to do |format|
       format.html # index.html.erb

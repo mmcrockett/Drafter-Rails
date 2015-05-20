@@ -57,6 +57,18 @@ var GenericView = Backbone.View.extend({
         }
       }
     }));
+
+    jQuery.ready(jQuery(window).bind('keyup.moveleague', function(e) {
+      if ((65 == e.keyCode) || (66 == e.keyCode)) {
+        if ((false == view.single_add_input.is(':focus')) && (false == view.bulk_add_input.is(':focus'))) {
+          if (65 == e.keyCode) {
+            view.change_player('A');
+          } else if (66 == e.keyCode) {
+            view.change_player('B1');
+          }
+        }
+      }
+    }));
   }
   ,delete_rows: function() {
     var view = this;
@@ -81,6 +93,33 @@ var GenericView = Backbone.View.extend({
         }
       }
     });
+  }
+  ,change_player: function(new_league) {
+    var view = this;
+    var change_players = [];
+
+    _.forEach(view.wrapper.getChart().getSelection(), function(gitem, i, obj) {
+      change_players.push(view.items.findWhere({id: view.wrapper.getDataTable().getRowProperty(gitem.row, "player_id")}));
+    }, view);
+
+    _.forEach(change_players, function(item, i, obj) {
+      var parts = item.league().split(' ');
+      var new_value = new_league;
+
+      console.log(item.league());
+
+      _.forEach(parts, function(part, i, obj) {
+        if (0 != i) {
+          new_value += ' ' + part;
+        }
+      });
+
+      item.set("league", new_value);
+      item.save();
+      console.log(item.league());
+      view.clear_selection();
+      view.render();
+    }, view);
   }
   ,selected_season: function() {
     return parseInt(this.season_select.selectBox().val());
