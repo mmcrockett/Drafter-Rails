@@ -34,8 +34,11 @@ gem 'nokogiri'
 # gem 'unicorn'
 
 # Deploy with Capistrano
-gem 'capistrano', '~> 2.15'
-gem 'rvm-capistrano'
+group :development do
+  gem 'capistrano', '~> 2.15'
+  gem 'rvm-capistrano', require: false
+  gem 'csv'
+end
 
 # To use debugger
 # gem 'debugger'

@@ -118,6 +118,8 @@ var PlayerView = GenericView.extend({
         } else if (-1 != lower_k.indexOf('last')) {
           player.last_name = v;
         } else if (-1 != lower_k.indexOf('position')) {
+          // Old style
+          // Position / Level,First Name,Last Name,Two League,Sharing,Team Request,Other/Notes
           var parts = v.split('-');
 
           if (true == _.isString(parts[0])) {
@@ -126,6 +128,27 @@ var PlayerView = GenericView.extend({
 
           if (true == _.isString(parts[1])) {
             player.league = parts[1].trim();
+          }
+        } else if (0 == lower_k.indexOf('league')) {
+          // New style
+          // League,First Name,Last Name,Captain Request,Assistant Captain,Two League,Sharing,Team Request,Other/Notes,Position
+          // B1 Skater - Returning,Mike,Crockett,,,,Tom Everard,Crown Kings,,Defense
+          var parts = v.toUpperCase().split(' ');
+
+          if (true == _.isString(parts[0])) {
+            player.league = parts[0].trim() + ' DIV';
+          }
+
+          if (true == _.isString(parts[1])) {
+            if ((-1 != parts[1].indexOf('GOALIE')) || (-1 != parts[1].indexOf('SKATER'))) {
+              player.position = parts[1].trim();
+            }
+          }
+
+          if (true == _.isString(parts[3])) {
+            if (-1 != parts[3].indexOf('NEW')) {
+              player.position = player.position.concat('NEW');
+            }
           }
         } else if (false == _.isEmpty(v)) {
           notes.push(k + ' ' + v);

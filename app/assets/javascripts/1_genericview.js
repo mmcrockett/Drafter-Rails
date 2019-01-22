@@ -1,5 +1,5 @@
 var GenericView = Backbone.View.extend({
-  bulk_input_default: "Position / Level,First Name,Last Name,Two League,Sharing,Team Request,Other/Notes\nSKATER - B1 DIV,first,last,,,,"
+  bulk_input_default: "League,First Name,Last Name,Captain Request,Assistant Captain,Two League,Sharing,Team Request,Other/Notes,Position\nB1 Skater - New,Firstname,Lastname,,,,,,,"
   ,sort: {column: 0, ascending: true}
   ,initialize: function(items, options) {
     var view = this;
